@@ -1,0 +1,46 @@
+{
+  "name": "price-aggregators",
+  "version": "1.0.0",
+  "description": "Deployment scripts for Aave price aggregators",
+  "dependencies": {
+    "@openzeppelin/contracts": "^3.3.0",
+    "@typechain/ethers-v5": "^5.0.0",
+    "decimal.js": "^10.2.1",
+    "hardhat-typechain": "^0.3.4",
+    "ts-generator": "^0.1.1",
+    "typechain": "^4.0.1"
+  },
+  "devDependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.0.2",
+    "@nomiclabs/hardhat-etherscan": "^2.0.1",
+    "@nomiclabs/hardhat-waffle": "^2.0.0",
+    "@types/chai": "^4.2.14",
+    "@types/mocha": "^8.2.0",
+    "@types/node": "^14.14.21",
+    "chai": "^4.2.0",
+    "ethereum-waffle": "^3.2.1",
+    "ethers": "^5.0.23",
+    "hardhat": "^2.0.6",
+    "husky": "^5.1.3",
+    "prettier": "^2.2.1",
+    "prettier-plugin-solidity": "^1.0.0-beta.6",
+    "pretty-quick": "^3.1.0",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.1.3"
+  },
+  "scripts": {
+    "compile": "SKIP_LOAD=true npx hardhat compile",
+    "deploy-mainnet": "npm run compile && npx hardhat --network mainnet deploy-price-aggregators",
+    "deploy-tenderly": "npm run compile && npx hardhat --network tenderly deploy-price-aggregators",
+    "deploy-kovan": "npm run compile && npx hardhat --network kovan deploy-price-aggregators",
+    "prettier:check": "npx prettier -c 'contracts/**/*.sol' 'scripts/**/*.ts'",
+    "prettier:write": "prettier --write 'contracts/**/*.sol' 'scripts/**/*.ts'"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged --pattern 'contracts/**/*.sol' --pattern 'scripts/**/*.ts'"
+    }
+  },
+  "author": "Aave",
+  "license": "AGPL-3.0-only"
+}
