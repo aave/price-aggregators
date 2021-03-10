@@ -11,6 +11,7 @@ task('deploy-price-aggregators', 'Deploy price aggregators', async (_, hre) => {
   // Uncomment pool names you dont want to deploy due deployment re-runs
   const balancerDeployList = ['BptWBTCWETH', 'BptBALWETH'];
   const uniswapDeployList = [
+    'UniDAIWETH',
     'UniWBTCWETH',
     'UniAAVEWETH',
     'UniBATWETH',
