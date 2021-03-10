@@ -25,9 +25,10 @@ export async function setUniAggs(deployList: string[], signer: Signer) {
       AAVE_ORACLE,
       MAX_PRICE_DEVIATION
     );
+    console.log('- Deploying UNI-V2', uniswapPools[i].address);
     await uniAggregator.deployTransaction.wait(7);
     console.log(
-      `Deployed Uni-V2 aggregator ${uniswapPools[i].name} for pair %s at address %s`,
+      `- Deployed Uni-V2 aggregator ${uniswapPools[i].name} for pair %s at address %s`,
       uniswapPools[i].address,
       uniAggregator.address
     );
@@ -35,7 +36,7 @@ export async function setUniAggs(deployList: string[], signer: Signer) {
 
     await verifyContract(
       uniAggregator.address,
-      'contracts/lp-oracle-contracts/proxies/UniswapV2PriceProvider.sol:UniswapV2PriceProvider',
+      'contracts/lp-oracle-contracts/aggregators/UniswapV2PriceProvider.sol:UniswapV2PriceProvider',
       [
         uniswapPools[i].address,
         uniswapPools[i].peg,
@@ -45,6 +46,7 @@ export async function setUniAggs(deployList: string[], signer: Signer) {
       ]
     );
   }
+  console.log('- Uniswap Addresses');
   aggregatorAddresses.forEach((address, i) => {
     console.log(uniswapPools[i].name, address);
   });

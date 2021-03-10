@@ -30,6 +30,7 @@ export async function verifyContract(_address: string, contractPath: string, arg
           error
         );
       }
+      throw 'Verification failed';
     }
     await delay(5000);
   }

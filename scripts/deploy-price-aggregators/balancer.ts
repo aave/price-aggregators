@@ -45,9 +45,10 @@ export async function setBptAggs(deployList: string[], signer: Signer) {
       '100000000',
       matrix
     );
+    console.log('- Deploying BPT aggregator', balancerPools[i].address);
     await bptAggregator.deployTransaction.wait(7);
     console.log(
-      'Deployed BPT aggregator for pair %s at address %s',
+      '- Deployed BPT aggregator for pair %s at address %s',
       balancerPools[i].address,
       bptAggregator.address
     );
@@ -55,7 +56,7 @@ export async function setBptAggs(deployList: string[], signer: Signer) {
 
     await verifyContract(
       bptAggregator.address,
-      'contracts/lp-oracle-contracts/proxies/BalancerSharedPoolPriceProvider.sol:BalancerSharedPoolPriceProvider',
+      'contracts/lp-oracle-contracts/aggregators/BalancerSharedPoolPriceProvider.sol:BalancerSharedPoolPriceProvider',
       [
         balancerPools[i].address,
         balancerPools[i].peg,
@@ -69,6 +70,7 @@ export async function setBptAggs(deployList: string[], signer: Signer) {
     );
   }
 
+  console.log('- Balancer Addresses');
   aggregatorAddresses.forEach((address, i) => {
     console.log(balancerPools[i].name, address);
   });
