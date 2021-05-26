@@ -5,14 +5,14 @@ import {SafeMath} from '../open-zeppelin/SafeMath.sol';
 import {Address} from '../open-zeppelin/Address.sol';
 import {IPriceOracleGetter} from '../interfaces/IPriceOracleGetter.sol';
 import {ICurve} from '../interfaces/ICurve.sol';
-import {ICurvePriceProviderPure} from '../interfaces/ICurvePriceProviderPure.sol';
+import {ICurvePriceProviderPureSAave} from '../interfaces/ICurvePriceProviderPureSAave.sol';
 
 /**
  * @title CurvePriceProviderHardcoded
- * @notice Price provider for Curve liquidity tokens, with optimized with constants
+ * @notice Price provider for Curve saave pool liquidity tokens, with optimized with constants
  * @author Aave
  */
-contract CurvePriceProviderHardcoded is ICurvePriceProviderPure {
+contract CurvePriceProviderHardcodedSAave is ICurvePriceProviderPureSAave {
   using Address for address;
   using SafeMath for uint256;
 
@@ -27,7 +27,7 @@ contract CurvePriceProviderHardcoded is ICurvePriceProviderPure {
    * @return (address, uint256)
    */
   function getTokensMinPrice() public view override returns (address, uint256) {
-    address[4] memory subTokens = getSubTokens();
+    address[2] memory subTokens = getSubTokens();
     address minToken = subTokens[0];
     IPriceOracleGetter aaveOracle = getAaveOracle();
     uint256 minPrice = aaveOracle.getAssetPrice(minToken);
@@ -58,7 +58,8 @@ contract CurvePriceProviderHardcoded is ICurvePriceProviderPure {
    * @return IPriceOracleGetter
    */
   function getAaveOracle() public pure override returns (IPriceOracleGetter) {
-    return IPriceOracleGetter(0x76B47460d7F7c5222cFb6b6A75615ab10895DDe4);
+    // Pending AaveOracle deployment with USD as quote currency
+    return IPriceOracleGetter(0x0000000000000000000000000000000000000000);
   }
 
   /**
@@ -66,7 +67,7 @@ contract CurvePriceProviderHardcoded is ICurvePriceProviderPure {
    * @return address
    */
   function getToken() public pure override returns (address) {
-    return 0x45F783CCE6B7FF23B2ab2D70e416cdb7D6055f51;
+    return 0x462253b8F74B72304c145DB0e4Eebd326B22ca39;
   }
 
   /**
@@ -81,12 +82,10 @@ contract CurvePriceProviderHardcoded is ICurvePriceProviderPure {
    * @dev Returns the addresses of the underlying tokens of the Curve token
    * @return address[]
    */
-  function getSubTokens() public pure override returns (address[4] memory) {
+  function getSubTokens() public pure override returns (address[2] memory) {
     return [
-      address(0xdAC17F958D2ee523a2206206994597C13D831ec7),
-      address(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
-      address(0x0000000000085d4780B73119b644AE5ecd22b376),
-      address(0x6B175474E89094C44Da98b954EedeAC495271d0F)
+      address(0x6B175474E89094C44Da98b954EedeAC495271d0F),
+      address(0x57Ab1ec28D129707052df4dF418D58a2D46d5f51)
     ];
   }
 }

@@ -1,6 +1,6 @@
 {
-  "name": "price-aggregators",
-  "version": "1.0.0",
+  "name": "@aave/price-aggregators",
+  "version": "1.0.1",
   "description": "Deployment scripts for Aave price aggregators",
   "dependencies": {
     "@openzeppelin/contracts": "^3.3.0",
@@ -38,6 +38,7 @@
     "deploy-mainnet": "npm run compile && npx hardhat --network mainnet deploy-price-aggregators",
     "deploy-tenderly": "npm run compile && npx hardhat --network tenderly deploy-price-aggregators",
     "deploy-kovan": "npm run compile && npx hardhat --network kovan deploy-price-aggregators",
+    "deploy-curve:tenderly": "npm run compile && npx hardhat --network tenderly deploy-curve-price-provider",
     "prettier:check": "npx prettier -c 'contracts/**/*.sol' 'scripts/**/*.ts'",
     "prettier:write": "prettier --write 'contracts/**/*.sol' 'scripts/**/*.ts'",
     "test:curve": "npm run compile && hardhat test ./tests/curve/*.spec.ts"
