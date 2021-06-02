@@ -2,7 +2,7 @@ import { task } from 'hardhat/config';
 import { deployCurveGaugePriceProvider } from '../scripts/curve/deployments';
 import { usingTenderly } from '../scripts/helpers/tenderly-utils';
 
-task('deploy-curve-price-provider', 'Deploy price aggregators')
+task('deploy-curve-gauge-price-provider', 'Deploy price aggregators')
   .addParam('aaveOracle', '')
   .addParam('gaugeToken', '')
   .addParam('platformId', '')

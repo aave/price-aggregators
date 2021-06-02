@@ -6,6 +6,7 @@ import {Address} from '../open-zeppelin/Address.sol';
 import {IPriceOracleGetter} from '../interfaces/IPriceOracleGetter.sol';
 import {ICurve} from '../interfaces/ICurve.sol';
 import {ICurveGauge} from '../interfaces/ICurveGauge.sol';
+import {ICurveToken} from '../interfaces/ICurveToken.sol';
 import {ICurvePriceProvider} from '../interfaces/ICurvePriceProvider.sol';
 
 /**
@@ -19,7 +20,7 @@ contract CurveGaugePriceProvider is ICurvePriceProvider {
 
   IPriceOracleGetter internal immutable AAVE_ORACLE;
   address internal immutable TOKEN;
-  address internal immutable LP_TOKEN;
+  address internal immutable POOL;
   uint256 internal immutable PLATFORM_ID;
 
   address[] internal _subTokens;
@@ -34,7 +35,7 @@ contract CurveGaugePriceProvider is ICurvePriceProvider {
   ) public {
     AAVE_ORACLE = aaveOracle;
     TOKEN = token;
-    LP_TOKEN = ICurveGauge(token).lp_token();
+    POOL = ICurveToken(ICurveGauge(token).lp_token()).minter();
     PLATFORM_ID = platformId;
     _subTokens = subTokens;
     emit Setup(token, platformId, aaveOracle);
@@ -68,7 +69,7 @@ contract CurveGaugePriceProvider is ICurvePriceProvider {
   function latestAnswer() public view override returns (int256) {
     (, uint256 tokensMinPrice) = getTokensMinPrice();
 
-    return int256(tokensMinPrice.mul(ICurve(LP_TOKEN).get_virtual_price()).div(1e18));
+    return int256(tokensMinPrice.mul(ICurve(getPool()).get_virtual_price()).div(1e18));
   }
 
   /**
@@ -85,6 +86,14 @@ contract CurveGaugePriceProvider is ICurvePriceProvider {
    */
   function getToken() public view override returns (address) {
     return TOKEN;
+  }
+
+  /**
+   * @dev Returns the address of the Curve swap pool
+   * @return address
+   */
+  function getPool() public view override returns (address) {
+    return POOL;
   }
 
   /**

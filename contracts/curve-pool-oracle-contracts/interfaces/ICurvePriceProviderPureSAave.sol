@@ -12,6 +12,8 @@ interface ICurvePriceProviderPureSAave {
 
   function getToken() external pure returns (address);
 
+  function getPool() external pure returns (address);
+
   function getPlatformId() external pure returns (uint256);
 
   function getSubTokens() external pure returns (address[2] memory);

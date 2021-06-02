@@ -5,14 +5,14 @@ import {SafeMath} from '../open-zeppelin/SafeMath.sol';
 import {Address} from '../open-zeppelin/Address.sol';
 import {IPriceOracleGetter} from '../interfaces/IPriceOracleGetter.sol';
 import {ICurve} from '../interfaces/ICurve.sol';
-import {ICurvePriceProviderPureAave} from '../interfaces/ICurvePriceProviderPureAave.sol';
+import {ICurvePriceProviderPureSAave} from '../interfaces/ICurvePriceProviderPureSAave.sol';
 
 /**
  * @title CurvePriceProviderHardcoded
- * @notice Price provider for Curve aave pool liquidity tokens, with optimized with constants
+ * @notice Price provider for Curve saave pool liquidity tokens, with optimized with constants
  * @author Aave
  */
-contract CurvePriceProviderHardcodedAave is ICurvePriceProviderPureAave {
+contract CurvePriceProviderHardcodedSAave is ICurvePriceProviderPureSAave {
   using Address for address;
   using SafeMath for uint256;
 
@@ -27,7 +27,7 @@ contract CurvePriceProviderHardcodedAave is ICurvePriceProviderPureAave {
    * @return (address, uint256)
    */
   function getTokensMinPrice() public view override returns (address, uint256) {
-    address[3] memory subTokens = getSubTokens();
+    address[2] memory subTokens = getSubTokens();
     address minToken = subTokens[0];
     IPriceOracleGetter aaveOracle = getAaveOracle();
     uint256 minPrice = aaveOracle.getAssetPrice(minToken);
@@ -50,7 +50,7 @@ contract CurvePriceProviderHardcodedAave is ICurvePriceProviderPureAave {
   function latestAnswer() public view override returns (int256) {
     (, uint256 tokensMinPrice) = getTokensMinPrice();
 
-    return int256(tokensMinPrice.mul(ICurve(getToken()).get_virtual_price()).div(1e18));
+    return int256(tokensMinPrice.mul(ICurve(getPool()).get_virtual_price()).div(1e18));
   }
 
   /**
@@ -58,7 +58,7 @@ contract CurvePriceProviderHardcodedAave is ICurvePriceProviderPureAave {
    * @return IPriceOracleGetter
    */
   function getAaveOracle() public pure override returns (IPriceOracleGetter) {
-    // AaveOracleV2 Tenderly fork address
+    // Pending AaveOracle deployment with USD as quote currency
     return IPriceOracleGetter(0x0000000000000000000000000000000000000000);
   }
 
@@ -67,7 +67,15 @@ contract CurvePriceProviderHardcodedAave is ICurvePriceProviderPureAave {
    * @return address
    */
   function getToken() public pure override returns (address) {
-    return 0xd662908ADA2Ea1916B3318327A97eB18aD588b5d;
+    return 0x462253b8F74B72304c145DB0e4Eebd326B22ca39;
+  }
+
+  /**
+   * @dev Returns the address of the Curve swap pool
+   * @return address
+   */
+  function getPool() public pure override returns (address) {
+    return 0xEB16Ae0052ed37f479f7fe63849198Df1765a733;
   }
 
   /**
@@ -82,11 +90,10 @@ contract CurvePriceProviderHardcodedAave is ICurvePriceProviderPureAave {
    * @dev Returns the addresses of the underlying tokens of the Curve token
    * @return address[]
    */
-  function getSubTokens() public pure override returns (address[3] memory) {
+  function getSubTokens() public pure override returns (address[2] memory) {
     return [
       address(0x6B175474E89094C44Da98b954EedeAC495271d0F),
-      address(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
-      address(0xdAC17F958D2ee523a2206206994597C13D831ec7)
+      address(0x57Ab1ec28D129707052df4dF418D58a2D46d5f51)
     ];
   }
 }

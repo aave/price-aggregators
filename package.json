@@ -39,6 +39,7 @@
     "deploy-tenderly": "npm run compile && npx hardhat --network tenderly deploy-price-aggregators",
     "deploy-kovan": "npm run compile && npx hardhat --network kovan deploy-price-aggregators",
     "deploy-curve:tenderly": "npm run compile && npx hardhat --network tenderly deploy-curve-price-provider",
+    "deploy-curve-gauge:tenderly": "npm run compile && npx hardhat --network tenderly deploy-curve-gauge-price-provider",
     "prettier:check": "npx prettier -c 'contracts/**/*.sol' 'scripts/**/*.ts'",
     "prettier:write": "prettier --write 'contracts/**/*.sol' 'scripts/**/*.ts'",
     "test:curve": "npm run compile && hardhat test ./tests/curve/*.spec.ts"
