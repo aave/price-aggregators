@@ -5,21 +5,39 @@ import {SafeMath} from '../open-zeppelin/SafeMath.sol';
 import {Address} from '../open-zeppelin/Address.sol';
 import {IPriceOracleGetter} from '../interfaces/IPriceOracleGetter.sol';
 import {ICurve} from '../interfaces/ICurve.sol';
-import {ICurvePriceProviderPureAave} from '../interfaces/ICurvePriceProviderPureAave.sol';
+import {ICurveGauge} from '../interfaces/ICurveGauge.sol';
+import {ICurvePriceProvider} from '../interfaces/ICurvePriceProvider.sol';
 
 /**
- * @title CurvePriceProviderHardcoded
- * @notice Price provider for Curve aave pool liquidity tokens, with optimized with constants
+ * @title CurvePriceProvider
+ * @notice Price provider for Curve liquidity tokens, with state variables (NON-OPTIMIZED)
  * @author Aave
  */
-contract CurvePriceProviderHardcodedAave is ICurvePriceProviderPureAave {
+contract CurveGaugePriceProvider is ICurvePriceProvider {
   using Address for address;
   using SafeMath for uint256;
 
+  IPriceOracleGetter internal immutable AAVE_ORACLE;
+  address internal immutable TOKEN;
+  address internal immutable LP_TOKEN;
+  uint256 internal immutable PLATFORM_ID;
+
+  address[] internal _subTokens;
+
   event Setup(address token, uint256 platformId, IPriceOracleGetter aaveOracle);
 
-  constructor() public {
-    emit Setup(getToken(), getPlatformId(), getAaveOracle());
+  constructor(
+    IPriceOracleGetter aaveOracle,
+    address token,
+    uint256 platformId,
+    address[] memory subTokens
+  ) public {
+    AAVE_ORACLE = aaveOracle;
+    TOKEN = token;
+    LP_TOKEN = ICurveGauge(token).lp_token();
+    PLATFORM_ID = platformId;
+    _subTokens = subTokens;
+    emit Setup(token, platformId, aaveOracle);
   }
 
   /**
@@ -27,7 +45,7 @@ contract CurvePriceProviderHardcodedAave is ICurvePriceProviderPureAave {
    * @return (address, uint256)
    */
   function getTokensMinPrice() public view override returns (address, uint256) {
-    address[3] memory subTokens = getSubTokens();
+    address[] memory subTokens = getSubTokens();
     address minToken = subTokens[0];
     IPriceOracleGetter aaveOracle = getAaveOracle();
     uint256 minPrice = aaveOracle.getAssetPrice(minToken);
@@ -50,43 +68,38 @@ contract CurvePriceProviderHardcodedAave is ICurvePriceProviderPureAave {
   function latestAnswer() public view override returns (int256) {
     (, uint256 tokensMinPrice) = getTokensMinPrice();
 
-    return int256(tokensMinPrice.mul(ICurve(getToken()).get_virtual_price()).div(1e18));
+    return int256(tokensMinPrice.mul(ICurve(LP_TOKEN).get_virtual_price()).div(1e18));
   }
 
   /**
    * @dev Returns the address of the Aave oracle, from where prices are fetched
    * @return IPriceOracleGetter
    */
-  function getAaveOracle() public pure override returns (IPriceOracleGetter) {
-    // AaveOracleV2 Tenderly fork address
-    return IPriceOracleGetter(0x0000000000000000000000000000000000000000);
+  function getAaveOracle() public view override returns (IPriceOracleGetter) {
+    return AAVE_ORACLE;
   }
 
   /**
    * @dev Returns the address of the Curve token
    * @return address
    */
-  function getToken() public pure override returns (address) {
-    return 0xd662908ADA2Ea1916B3318327A97eB18aD588b5d;
+  function getToken() public view override returns (address) {
+    return TOKEN;
   }
 
   /**
    * @dev Returns the numeric id of the token's platform, used on Aave's infrastructure
    * @return uint256
    */
-  function getPlatformId() public pure override returns (uint256) {
-    return 3;
+  function getPlatformId() public view override returns (uint256) {
+    return PLATFORM_ID;
   }
 
   /**
    * @dev Returns the addresses of the underlying tokens of the Curve token
    * @return address[]
    */
-  function getSubTokens() public pure override returns (address[3] memory) {
-    return [
-      address(0x6B175474E89094C44Da98b954EedeAC495271d0F),
-      address(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
-      address(0xdAC17F958D2ee523a2206206994597C13D831ec7)
-    ];
+  function getSubTokens() public view override returns (address[] memory) {
+    return _subTokens;
   }
 }

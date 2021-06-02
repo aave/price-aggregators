@@ -8,7 +8,6 @@ import '@tenderly/hardhat-tenderly';
 
 // Import HRE task
 import './tasks/set-hre';
-import './tasks/deploy';
 
 const { ffmnemonic, alchemyProjectId, etherscanKey, infuraProjectId } = require('./secrets.json');
 
