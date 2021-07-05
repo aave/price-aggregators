@@ -4,10 +4,10 @@ import { usingTenderly } from '../scripts/helpers/tenderly-utils';
 
 task('deploy-curve-price-provider', 'Deploy price aggregators')
   .addParam('aaveOracle', '')
-  .addParam('gaugeToken', '')
+  .addParam('poolToken', '')
   .addParam('platformId', '')
   .addParam('subTokens', '')
-  .setAction(async ({ aaveOracle, gaugeToken, platformId, subTokens }, hre) => {
+  .setAction(async ({ aaveOracle, poolToken, platformId, subTokens }, hre) => {
     // Make HRE be available in other modules
     await hre.run('set-hre');
 
@@ -15,14 +15,14 @@ task('deploy-curve-price-provider', 'Deploy price aggregators')
 
     const provider = await deployCurvePriceProvider([
       aaveOracle,
-      gaugeToken,
+      poolToken,
       Number(platformId),
       underlyingTokens,
     ]);
 
     console.log('- Deployed Curve Price Provider at', provider.address);
     console.log('  AaveOracle', aaveOracle);
-    console.log('  GaugeToken', gaugeToken);
+    console.log('  PoolToken', poolToken);
     console.log('  PlatformId', platformId);
     console.log('  SubTokens', subTokens);
     if (usingTenderly()) {
