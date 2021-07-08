@@ -8,7 +8,7 @@ import '../interfaces/IExtendedAggregator.sol';
 import '../interfaces/IPriceOracle.sol';
 import '../misc/BNum.sol';
 
-/** @title BalancerSharedPoolPriceProvider
+/** @title BalancerV2SharedPoolPriceProvider
  * @notice Price provider for a balancer pool token
  * It calculates the price using Chainlink as an external price source and the pool's tokens balances using the weighted arithmetic mean formula.
  * If there is a price deviation, instead of the balances, it uses a weighted geometric mean with the token's weights and constant value function V.
