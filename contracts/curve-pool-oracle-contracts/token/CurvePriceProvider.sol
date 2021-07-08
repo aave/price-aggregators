@@ -30,11 +30,12 @@ contract CurvePriceProvider is ICurvePriceProvider {
     IPriceOracleGetter aaveOracle,
     address token,
     uint256 platformId,
-    address[] memory subTokens
+    address[] memory subTokens,
+    address pool
   ) public {
     AAVE_ORACLE = aaveOracle;
     TOKEN = token;
-    POOL = ICurveToken(token).minter();
+    POOL = pool;
     PLATFORM_ID = platformId;
     _subTokens = subTokens;
     emit Setup(token, platformId, aaveOracle);

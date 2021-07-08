@@ -6,19 +6,21 @@ import { MockCurve__factory } from '../../typechain/factories/MockCurve__factory
 import { CurveGaugePriceProvider__factory } from '../../typechain';
 
 export const deployCurvePriceProvider = async (
-  [aaveOracle, token, platformId, subTokens]: [
+  [aaveOracle, token, platformId, subTokens, poolAddress]: [
     tEthereumAddress,
     tEthereumAddress,
     number,
-    tEthereumAddress[]
+    tEthereumAddress[],
+    tEthereumAddress
   ],
   verify?: boolean
 ) => {
-  const args: [string, string, string, string[]] = [
+  const args: [string, string, string, string[], tEthereumAddress] = [
     aaveOracle,
     token,
     platformId.toString(),
     subTokens,
+    poolAddress,
   ];
   return withSaveAndVerify(
     await new CurvePriceProvider__factory(await getFirstSigner()).deploy(...args),
