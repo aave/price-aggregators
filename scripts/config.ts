@@ -16,10 +16,83 @@ export const MAX_PRICE_DEVIATION = '50000000000000000';
 
 export const AAVE_ORACLE = '0xA50ba011c48153De246E5192C8f9258A2ba79Ca9';
 
+export const balancerV2Markets = [
+  {
+    name: 'BptV2WBTCWETH',
+    address: '0xA6F548DF93de924d73be7D25dC02554c6bD66dB5',
+    peg: [true, false],
+    decimals: [18, 8],
+    weights: [0.5, 0.5],
+  },
+  {
+    name: 'BptV2BALWETH',
+    address: '0xA6F548DF93de924d73be7D25dC02554c6bD66dB5',
+    peg: [false, true],
+    decimals: [18, 18],
+    weights: [0.8, 0.2],
+  },
+  {
+    name: 'BptV2WETHDAI',
+    address: '0x0b09deA16768f0799065C475bE02919503cB2a35',
+    peg: [true, false],
+    decimals: [18, 18],
+    weights: [0.6, 0.4],
+  },
+  {
+    name: 'BptV2USDCWETH',
+    address: '0x96646936b91d6B9D7D0c47C496AfBF3D6ec7B6f8',
+    peg: [true, false],
+    decimals: [18, 6],
+    weights: [0.5, 0.5],
+  },
+  {
+    name: 'BptV2USDTWETH',
+    address: '0x3e5FA9518eA95c3E533EB377C001702A9AaCAA32',
+    peg: [false, true],
+    decimals: [6, 18],
+    weights: [0.5, 0.5],
+  },
+  {
+    name: 'BptV2MKRWETH',
+    address: '0xaac98EE71D4F8A156B6abaa6844Cdb7789d086CE',
+    peg: [false, true],
+    decimals: [18, 18],
+    weights: [0.6, 0.4],
+  },
+  {
+    name: 'BptV2SNXWETH',
+    address: '0x072f14b85add63488ddad88f855fda4a99d6ac9b',
+    peg: [true, false],
+    decimals: [18, 18],
+    weights: [0.5, 0.5],
+  },
+  {
+    name: 'BptV2YFIWETH',
+    address: '0x186084fF790C65088BA694Df11758faE4943EE9E',
+    peg: [true, false],
+    decimals: [18, 18],
+    weights: [0.5, 0.5],
+  },
+  {
+    name: 'BptV2LINKWETH',
+    address: '0xE99481DC77691d8E2456E5f3F61C1810adFC1503',
+    peg: [true, false],
+    decimals: [18, 18],
+    weights: [0.5, 0.5],
+  },
+  {
+    name: 'BptV2DPIWBTCWETH',
+    address: '0xE99481DC77691d8E2456E5f3F61C1810adFC1503',
+    peg: [true, false, false],
+    decimals: [18, 8, 18],
+    weights: [0.33, 0.33, 0.33],
+  },
+];
+
 export const balancerMarkets = [
   {
     name: 'BptWBTCWETH',
-    address: '0x1efF8aF5D577060BA4ac8A29A13525bb0Ee2A3D5',
+    address: '0x61d5dc44849c9C87b0856a2a311536205C96c7FD',
     peg: [true, false],
     decimals: [18, 8],
     weights: [0.5, 0.5],
