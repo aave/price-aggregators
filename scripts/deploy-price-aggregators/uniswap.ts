@@ -3,7 +3,7 @@ import { UniswapV2PriceProvider__factory } from '../../typechain';
 import '@nomiclabs/hardhat-ethers';
 import { AAVE_ORACLE, MAX_PRICE_DEVIATION, uniswapMarkets } from '../config';
 import { exit } from 'process';
-import { verifyContract } from '../misc-helpers';
+import { verifyContract } from '../helpers/misc-helpers';
 
 export async function setUniAggs(deployList: string[], signer: Signer) {
   const uniswapPools = uniswapMarkets.filter(({ name }) => {
@@ -34,17 +34,13 @@ export async function setUniAggs(deployList: string[], signer: Signer) {
     );
     aggregatorAddresses.push(uniAggregator.address);
 
-    await verifyContract(
-      uniAggregator.address,
-      'contracts/lp-oracle-contracts/aggregators/UniswapV2PriceProvider.sol:UniswapV2PriceProvider',
-      [
-        uniswapPools[i].address,
-        uniswapPools[i].peg,
-        uniswapPools[i].decimals,
-        AAVE_ORACLE,
-        MAX_PRICE_DEVIATION,
-      ]
-    );
+    await verifyContract('UniswapV2PriceProvider', uniAggregator, [
+      uniswapPools[i].address,
+      uniswapPools[i].peg.map((x) => x.toString()),
+      uniswapPools[i].decimals.map((x) => x.toString()),
+      AAVE_ORACLE,
+      MAX_PRICE_DEVIATION,
+    ]);
   }
   console.log('- Uniswap Addresses');
   aggregatorAddresses.forEach((address, i) => {
