@@ -4,10 +4,10 @@ import '@nomiclabs/hardhat-waffle';
 import '@nomiclabs/hardhat-etherscan';
 import '@nomiclabs/hardhat-ethers';
 import 'hardhat-typechain';
+import '@tenderly/hardhat-tenderly';
 
 // Import HRE task
 import './tasks/set-hre';
-import './tasks/deploy';
 
 const { ffmnemonic, alchemyProjectId, etherscanKey, infuraProjectId } = require('./secrets.json');
 
@@ -35,7 +35,7 @@ export default {
   networks: {
     mainnet: {
       url: `https://eth-mainnet.alchemyapi.io/v2/${alchemyProjectId}`,
-      gasPrice: 71000000000,
+      gasPrice: 201000000000,
       accounts: { mnemonic: ffmnemonic },
     },
     matic: {

@@ -1,5 +1,5 @@
-import { setBptAggs } from '../scripts/deploy-price-aggregators/balancer';
-import { setUniAggs } from '../scripts/deploy-price-aggregators/uniswap';
+import { setBptAggs } from '../scripts/balancer/deployments';
+import { setUniAggs } from '../scripts/uniswap/deployments';
 import { task } from 'hardhat/config';
 
 const { signerAddress } = require('../secrets.json');
