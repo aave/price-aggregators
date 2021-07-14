@@ -14,6 +14,8 @@ export interface UniswapPoolInfo {
 }
 export const MAX_PRICE_DEVIATION = '50000000000000000';
 
+export const BALANCER_V2_VAULT = '0xBA12222222228d8Ba445958a75a0704d566BF2C8';
+
 export const AAVE_ORACLE = '0xA50ba011c48153De246E5192C8f9258A2ba79Ca9';
 
 export const balancerV2Markets = [
