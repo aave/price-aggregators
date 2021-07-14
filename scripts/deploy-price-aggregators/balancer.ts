@@ -1,11 +1,97 @@
 import Decimal from 'decimal.js';
 import { BigNumberish, Signer } from 'ethers';
 import { exit } from 'process';
-import { BalancerSharedPoolPriceProvider__factory } from '../../typechain';
-import { balancerMarkets, AAVE_ORACLE, MAX_PRICE_DEVIATION } from '../config';
+import {
+  BalancerSharedPoolPriceProvider__factory,
+  BalancerV2SharedPoolPriceProvider__factory,
+} from '../../typechain';
+import { balancerMarkets, AAVE_ORACLE, MAX_PRICE_DEVIATION, BALANCER_V2_VAULT } from '../config';
 import { verifyContract } from '../helpers/misc-helpers';
 
-export async function setBptAggs(deployList: string[], signer: Signer) {
+const deployBalancerAggregator = async (
+  version: number,
+  signer: Signer,
+  poolAddress: string,
+  vaultAddress: string,
+  pegs: boolean[],
+  decimals: string[],
+  aaveOracle: string,
+  priceDeviation: string,
+  k: string,
+  powerPrecision: string,
+  matrix: string[][]
+) => {
+  switch (version) {
+    case 1:
+      return new BalancerSharedPoolPriceProvider__factory(signer).deploy(
+        poolAddress,
+        pegs,
+        decimals,
+        aaveOracle,
+        priceDeviation,
+        k,
+        powerPrecision,
+        matrix
+      );
+    case 2:
+      return new BalancerV2SharedPoolPriceProvider__factory(signer).deploy(
+        poolAddress,
+        vaultAddress,
+        pegs,
+        decimals,
+        aaveOracle,
+        priceDeviation,
+        k,
+        powerPrecision,
+        matrix
+      );
+    default:
+      throw `[error] Missing factory typings for Balancer V${version}.`;
+  }
+};
+
+const getBalancerAggregatorConstructorParams = (
+  version: number,
+  poolAddress: string,
+  vaultAddress: string,
+  pegs: boolean[],
+  decimals: string[],
+  aaveOracle: string,
+  priceDeviation: string,
+  k: string,
+  powerPrecision: string,
+  matrix: string[][]
+) => {
+  switch (version) {
+    case 1:
+      return [
+        poolAddress,
+        pegs.map((x) => x.toString()),
+        decimals,
+        aaveOracle,
+        priceDeviation,
+        k,
+        powerPrecision,
+        matrix,
+      ];
+    case 2:
+      return [
+        poolAddress,
+        vaultAddress,
+        pegs.map((x) => x.toString()),
+        decimals,
+        aaveOracle,
+        priceDeviation,
+        k,
+        powerPrecision,
+        matrix,
+      ];
+    default:
+      throw `[error] Missing constructor params for Balancer V${version}`;
+  }
+};
+
+export async function setBptAggs(deployList: string[], signer: Signer, version: number) {
   const balancerPools = balancerMarkets.filter(({ name }) => {
     return deployList.includes(name);
   });
@@ -34,18 +120,22 @@ export async function setBptAggs(deployList: string[], signer: Signer) {
         new Decimal(10).pow(i).pow(w2).times(ether).toFixed(0),
       ]);
     }
-
-    const bptAggregator = await new BalancerSharedPoolPriceProvider__factory(signer).deploy(
+    // Deployment
+    console.log('- Deploying BPT aggregator', balancerPools[i].address);
+    const bptAggregator = await deployBalancerAggregator(
+      version,
+      signer,
       balancerPools[i].address,
+      BALANCER_V2_VAULT,
       balancerPools[i].peg,
-      balancerPools[i].decimals,
+      balancerPools[i].decimals.map((x) => x.toString()),
       AAVE_ORACLE,
       MAX_PRICE_DEVIATION,
       k,
       '100000000',
       matrix
     );
-    console.log('- Deploying BPT aggregator', balancerPools[i].address);
+
     await bptAggregator.deployTransaction.wait(7);
     console.log(
       '- Deployed BPT aggregator for pair %s at address %s',
@@ -54,16 +144,20 @@ export async function setBptAggs(deployList: string[], signer: Signer) {
     );
     aggregatorAddresses.push(bptAggregator.address);
 
-    await verifyContract('BalancerSharedPoolPriceProvider', bptAggregator, [
+    // Verification of contract at block explorer or Tenderly
+    const constructorParams = getBalancerAggregatorConstructorParams(
+      version,
       balancerPools[i].address,
-      balancerPools[i].peg.map((x) => x.toString()),
+      BALANCER_V2_VAULT,
+      balancerPools[i].peg,
       balancerPools[i].decimals.map((x) => x.toString()),
       AAVE_ORACLE,
       MAX_PRICE_DEVIATION,
       k,
       '100000000',
-      matrix,
-    ]);
+      matrix
+    );
+    await verifyContract('BalancerSharedPoolPriceProvider', bptAggregator, constructorParams);
   }
 
   console.log('- Balancer Addresses');
