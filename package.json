@@ -20,6 +20,7 @@
     "@types/mocha": "^8.2.0",
     "@types/node": "^14.14.21",
     "chai": "^4.2.0",
+    "defender-relay-client": "^1.10.0",
     "ethereum-waffle": "^3.2.1",
     "ethers": "^5.0.23",
     "hardhat": "^2.0.6",
