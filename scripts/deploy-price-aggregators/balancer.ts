@@ -2,11 +2,20 @@ import Decimal from 'decimal.js';
 import { BigNumberish, Signer } from 'ethers';
 import { exit } from 'process';
 import {
+  BalancerSharedPoolPriceProvider,
   BalancerSharedPoolPriceProvider__factory,
+  BalancerV2SharedPoolPriceProvider,
   BalancerV2SharedPoolPriceProvider__factory,
 } from '../../typechain';
-import { balancerMarkets, AAVE_ORACLE, MAX_PRICE_DEVIATION, BALANCER_V2_VAULT } from '../config';
-import { verifyContract } from '../helpers/misc-helpers';
+import {
+  balancerMarkets,
+  balancerV2Markets,
+  AAVE_ORACLE,
+  MAX_PRICE_DEVIATION,
+  BALANCER_V2_VAULT,
+} from '../config';
+import { HRE, verifyContract, waitForTx } from '../helpers/misc-helpers';
+import { usingTenderly } from '../helpers/tenderly-utils';
 
 const deployBalancerAggregator = async (
   version: number,
@@ -23,7 +32,7 @@ const deployBalancerAggregator = async (
 ) => {
   switch (version) {
     case 1:
-      return new BalancerSharedPoolPriceProvider__factory(signer).deploy(
+      const instance = await new BalancerSharedPoolPriceProvider__factory(signer).deploy(
         poolAddress,
         pegs,
         decimals,
@@ -33,8 +42,12 @@ const deployBalancerAggregator = async (
         powerPrecision,
         matrix
       );
+      await waitForTx(instance.deployTransaction);
+      return instance;
     case 2:
-      return new BalancerV2SharedPoolPriceProvider__factory(signer).deploy(
+      const contract = await new BalancerV2SharedPoolPriceProvider__factory(
+        signer
+      ).deploy(
         poolAddress,
         vaultAddress,
         pegs,
@@ -43,8 +56,11 @@ const deployBalancerAggregator = async (
         priceDeviation,
         k,
         powerPrecision,
-        matrix
+        matrix,
+        { gasLimit: 4000000 }
       );
+      await waitForTx(contract.deployTransaction);
+      return contract;
     default:
       throw `[error] Missing factory typings for Balancer V${version}.`;
   }
@@ -91,8 +107,19 @@ const getBalancerAggregatorConstructorParams = (
   }
 };
 
+const getBalancerConfig = (version: number) => {
+  switch (version) {
+    case 1:
+      return balancerMarkets;
+    case 2:
+      return balancerV2Markets;
+    default:
+      throw `[error] Missing balancer market configs for Balancer V${version}`;
+  }
+};
+
 export async function setBptAggs(deployList: string[], signer: Signer, version: number) {
-  const balancerPools = balancerMarkets.filter(({ name }) => {
+  const balancerPools = getBalancerConfig(version).filter(({ name }) => {
     return deployList.includes(name);
   });
 
@@ -122,21 +149,32 @@ export async function setBptAggs(deployList: string[], signer: Signer, version: 
     }
     // Deployment
     console.log('- Deploying BPT aggregator', balancerPools[i].address);
-    const bptAggregator = await deployBalancerAggregator(
-      version,
-      signer,
-      balancerPools[i].address,
-      BALANCER_V2_VAULT,
-      balancerPools[i].peg,
-      balancerPools[i].decimals.map((x) => x.toString()),
-      AAVE_ORACLE,
-      MAX_PRICE_DEVIATION,
-      k,
-      '100000000',
-      matrix
-    );
+    let bptAggregator: BalancerSharedPoolPriceProvider | BalancerV2SharedPoolPriceProvider;
+    try {
+      bptAggregator = await deployBalancerAggregator(
+        version,
+        signer,
+        balancerPools[i].address,
+        BALANCER_V2_VAULT,
+        balancerPools[i].peg,
+        balancerPools[i].decimals.map((x) => x.toString()),
+        AAVE_ORACLE,
+        MAX_PRICE_DEVIATION,
+        k,
+        '100000000',
+        matrix
+      );
+    } catch (err) {
+      console.error(err);
+      if (usingTenderly()) {
+        const transactionLink = `https://dashboard.tenderly.co/${HRE.config.tenderly.username}/${
+          HRE.config.tenderly.project
+        }/fork/${HRE.tenderly.network().getFork()}/simulation/${HRE.tenderly.network().getHead()}`;
+        console.error('Check tx error:', transactionLink);
+      }
+      throw err;
+    }
 
-    await bptAggregator.deployTransaction.wait(7);
     console.log(
       '- Deployed BPT aggregator for pair %s at address %s',
       balancerPools[i].address,

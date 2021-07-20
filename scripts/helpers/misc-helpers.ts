@@ -59,6 +59,7 @@ export const verifyContract = async (
 ) => {
   if (usingTenderly()) {
     await verifyAtTenderly(id, instance);
+    return instance;
   }
   await verifyEtherscanContract(instance.address, args);
   return instance;

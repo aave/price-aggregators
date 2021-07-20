@@ -28,7 +28,7 @@ export const balancerV2Markets = [
   },
   {
     name: 'BptV2BALWETH',
-    address: '0xA6F548DF93de924d73be7D25dC02554c6bD66dB5',
+    address: '0x5c6Ee304399DBdB9C8Ef030aB642B10820DB8F56',
     peg: [false, true],
     decimals: [18, 18],
     weights: [0.8, 0.2],
@@ -82,13 +82,14 @@ export const balancerV2Markets = [
     decimals: [18, 18],
     weights: [0.5, 0.5],
   },
+  /*
   {
     name: 'BptV2DPIWBTCWETH',
     address: '0xE99481DC77691d8E2456E5f3F61C1810adFC1503',
     peg: [true, false, false],
     decimals: [18, 8, 18],
     weights: [0.33, 0.33, 0.33],
-  },
+  },*/
 ];
 
 export const balancerMarkets = [

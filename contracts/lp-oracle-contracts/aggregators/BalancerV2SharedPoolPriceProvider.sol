@@ -7,6 +7,7 @@ import '../interfaces/BVaultV2.sol';
 import '../interfaces/IExtendedAggregator.sol';
 import '../interfaces/IPriceOracle.sol';
 import '../misc/BNum.sol';
+import 'hardhat/console.sol';
 
 /** @title BalancerV2SharedPoolPriceProvider
  * @notice Price provider for a balancer pool token
@@ -72,8 +73,11 @@ contract BalancerV2SharedPoolPriceProvider is BNum, IExtendedAggregator {
     require(_powerPrecision >= 1 && _powerPrecision <= BONE, 'ERR_INVALID_POWER_PRECISION');
     require(address(_priceOracle) != address(0), 'ERR_INVALID_PRICE_PROVIDER');
     // Get token normalized weights
+    console.log(1);
+    uint256[] memory _weights = _pool.getNormalizedWeights();
+    console.log(2);
     for (uint8 i = 0; i < length; i++) {
-      weights.push(pool.getNormalizedWeight(tokens[i]));
+      weights.push(_weights[i]);
     }
     isPeggedToEth = _isPeggedToEth;
     decimals = _decimals;
