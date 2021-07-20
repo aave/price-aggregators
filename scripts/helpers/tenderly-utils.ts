@@ -10,6 +10,6 @@ export const usingTenderly = () =>
 export const verifyAtTenderly = async (id: string, instance: Contract) => {
   console.log('\n- Doing Tenderly contract verification of', id);
   try {
-    const a = await HRE.tenderly.network().verify([{ name: id, address: instance.address }]);
+    const a = await HRE.tenderly.verify([{ name: id, address: instance.address }]);
   } catch (err) {}
 };
