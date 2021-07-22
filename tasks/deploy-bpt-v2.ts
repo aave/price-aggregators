@@ -6,6 +6,7 @@ import { Signer } from 'ethers';
 import { BalancerV2SharedPoolPriceProvider__factory, IAaveOracle__factory } from '../typechain';
 import { getFirstSigner, waitForTx } from '../scripts/helpers/misc-helpers';
 import { formatEther } from 'ethers/lib/utils';
+import { usingTenderly } from '../scripts/helpers/tenderly-utils';
 
 const { signerAddress } = require('../secrets.json');
 
@@ -51,5 +52,12 @@ task('deploy-bpt-v2-aggregators', 'Deploy price aggregators')
 
         console.log(names[i], formatEther(latestPrice));
       }
+    }
+
+    if (usingTenderly()) {
+      console.log('Tenderly fork status');
+      console.log('====================');
+      console.log('Fork ID:', hre.tenderly.network().getFork());
+      console.log('Head ID:', hre.tenderly.network().getHead());
     }
   });
