@@ -131,25 +131,30 @@ export async function setBptAggs(deployList: string[], signer: Signer, version: 
   const ether = '1000000000000000000';
 
   for (let i = 0; i < balancerPools.length; i++) {
-    const w1 = balancerPools[i].weights[0];
-    const w2 = balancerPools[i].weights[1];
-    const factor1 = new Decimal(w1).pow(w1);
-    const factor2 = new Decimal(w2).pow(w2);
-    const divisor = factor1.mul(factor2);
+    const divisor = balancerPools[i].weights.reduce<Decimal>((acc, w, i) => {
+      if (i == 0) {
+        return new Decimal(w).pow(w);
+      }
+      return acc.mul(new Decimal(w).pow(w));
+    }, new Decimal('0'));
+
     const k = new Decimal(ether).div(divisor).toFixed(0);
 
     let matrix: string[][] = [];
 
-    for (let i = 1; i <= 20; i++) {
-      matrix.push([
-        new Decimal(10).pow(i).times(ether).toFixed(0),
-        new Decimal(10).pow(i).pow(w1).times(ether).toFixed(0),
-        new Decimal(10).pow(i).pow(w2).times(ether).toFixed(0),
-      ]);
+    for (let y = 1; y <= 20; y++) {
+      const elements = [new Decimal(10).pow(y).times(ether).toFixed(0)];
+      for (let wI = 0; wI < balancerPools[i].weights.length; wI++) {
+        elements.push(
+          new Decimal(10).pow(y).pow(balancerPools[i].weights[wI]).times(ether).toFixed(0)
+        );
+      }
+      matrix.push(elements);
     }
     // Deployment
     console.log('- Deploying BPT aggregator', balancerPools[i].address);
     let bptAggregator: BalancerSharedPoolPriceProvider | BalancerV2SharedPoolPriceProvider;
+
     try {
       bptAggregator = await deployBalancerAggregator(
         version,
@@ -165,14 +170,13 @@ export async function setBptAggs(deployList: string[], signer: Signer, version: 
         matrix
       );
     } catch (err) {
-      console.error(err);
       if (usingTenderly()) {
         const transactionLink = `https://dashboard.tenderly.co/${HRE.config.tenderly.username}/${
           HRE.config.tenderly.project
         }/fork/${HRE.tenderly.network().getFork()}/simulation/${HRE.tenderly.network().getHead()}`;
         console.error('Check tx error:', transactionLink);
       }
-      throw err;
+      throw `Error at deployment for ${balancerPools[i].name}`;
     }
 
     console.log(
@@ -199,7 +203,14 @@ export async function setBptAggs(deployList: string[], signer: Signer, version: 
   }
 
   console.log('- Balancer Addresses');
-  aggregatorAddresses.forEach((address, i) => {
-    console.log(balancerPools[i].name, address);
-  });
+  const mappedAggregator = aggregatorAddresses.reduce<{ [key: string]: string }>(
+    (acc, address, i) => {
+      console.log(balancerPools[i].name, address);
+      acc[balancerPools[i].name] = address;
+      return acc;
+    },
+    {}
+  );
+
+  return mappedAggregator;
 }
