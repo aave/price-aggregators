@@ -36,5 +36,5 @@ task('deploy-price-aggregators', 'Deploy price aggregators', async (_, hre) => {
   const signer = hre.ethers.provider.getSigner(signerAddress);
 
   await setUniAggs(uniswapDeployList, signer);
-  await setBptAggs(balancerDeployList, signer);
+  await setBptAggs(balancerDeployList, signer, 1);
 });
