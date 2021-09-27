@@ -8,7 +8,6 @@ import '@tenderly/hardhat-tenderly';
 
 // Import HRE task
 import './tasks/set-hre';
-import './tasks/deploy';
 
 const { ffmnemonic, alchemyProjectId, etherscanKey, infuraProjectId } = require('./secrets.json');
 
@@ -39,7 +38,7 @@ export default {
     forkNetwork: '1', //Network id of the network we want to fork
   },
   networks: {
-    mainnet: {
+    main: {
       url: `https://eth-mainnet.alchemyapi.io/v2/${alchemyProjectId}`,
       gasPrice: 71000000000,
       accounts: { mnemonic: ffmnemonic },
@@ -55,8 +54,8 @@ export default {
     hardhat: {
       forking: {
         url: `https://eth-mainnet.alchemyapi.io/v2/${alchemyProjectId}`,
-        blockNumber: 11689738,
       },
+      ...(ffmnemonic && { accounts: { mnemonic: ffmnemonic } }),
     },
     tenderly: {
       url: `https://rpc.tenderly.co/fork/`,

@@ -80,21 +80,12 @@ const getBalancerAggregatorConstructorParams = (
 ) => {
   switch (version) {
     case 1:
-      return [
-        poolAddress,
-        pegs.map((x) => x.toString()),
-        decimals,
-        aaveOracle,
-        priceDeviation,
-        k,
-        powerPrecision,
-        matrix,
-      ];
+      return [poolAddress, pegs, decimals, aaveOracle, priceDeviation, k, powerPrecision, matrix];
     case 2:
       return [
         poolAddress,
         vaultAddress,
-        pegs.map((x) => x.toString()),
+        pegs,
         decimals,
         aaveOracle,
         priceDeviation,
@@ -152,7 +143,7 @@ export async function setBptAggs(deployList: string[], signer: Signer, version: 
       matrix.push(elements);
     }
     // Deployment
-    console.log('- Deploying BPT aggregator', balancerPools[i].address);
+    console.log('- Deploying BPT aggregator', balancerPools[i].name, balancerPools[i].address);
     let bptAggregator: BalancerSharedPoolPriceProvider | BalancerV2SharedPoolPriceProvider;
 
     try {
@@ -176,6 +167,7 @@ export async function setBptAggs(deployList: string[], signer: Signer, version: 
         }/fork/${HRE.tenderly.network().getFork()}/simulation/${HRE.tenderly.network().getHead()}`;
         console.error('Check tx error:', transactionLink);
       }
+      console.error(err);
       throw `Error at deployment for ${balancerPools[i].name}`;
     }
 
@@ -199,7 +191,13 @@ export async function setBptAggs(deployList: string[], signer: Signer, version: 
       '100000000',
       matrix
     );
-    await verifyContract('BalancerSharedPoolPriceProvider', bptAggregator, constructorParams);
+    if (HRE.network.name === 'main') {
+      await verifyContract(
+        'BalancerSharedPoolPriceProvider',
+        bptAggregator.address,
+        constructorParams
+      );
+    }
   }
 
   console.log('- Balancer Addresses');
@@ -213,4 +211,58 @@ export async function setBptAggs(deployList: string[], signer: Signer, version: 
   );
 
   return mappedAggregator;
+}
+
+export async function verifyBalOracles(verifyList: [string, string][], version: number) {
+  const balancerPools = getBalancerConfig(version).filter(({ name }) => {
+    return verifyList.map(([oracleName]) => oracleName).includes(name);
+  });
+
+  if (balancerPools.length !== verifyList.length) {
+    console.error('Verify list mismatch, check names at scripts/config.ts');
+    return exit(1);
+  }
+  const ether = '1000000000000000000';
+
+  for (let i = 0; i < balancerPools.length; i++) {
+    const divisor = balancerPools[i].weights.reduce<Decimal>((acc, w, i) => {
+      if (i == 0) {
+        return new Decimal(w).pow(w);
+      }
+      return acc.mul(new Decimal(w).pow(w));
+    }, new Decimal('0'));
+
+    const k = new Decimal(ether).div(divisor).toFixed(0);
+
+    let matrix: string[][] = [];
+
+    for (let y = 1; y <= 20; y++) {
+      const elements = [new Decimal(10).pow(y).times(ether).toFixed(0)];
+      for (let wI = 0; wI < balancerPools[i].weights.length; wI++) {
+        elements.push(
+          new Decimal(10).pow(y).pow(balancerPools[i].weights[wI]).times(ether).toFixed(0)
+        );
+      }
+      matrix.push(elements);
+    }
+    // Verification
+    console.log('- Verifying BPT aggregator', balancerPools[i].name, balancerPools[i].address);
+
+    // Verification of contract at block explorer or Tenderly
+    const constructorParams = getBalancerAggregatorConstructorParams(
+      version,
+      balancerPools[i].address,
+      BALANCER_V2_VAULT,
+      balancerPools[i].peg,
+      balancerPools[i].decimals.map((x) => x.toString()),
+      AAVE_ORACLE,
+      MAX_PRICE_DEVIATION,
+      k,
+      '100000000',
+      matrix
+    );
+    if (HRE.network.name === 'main') {
+      await verifyContract('BalancerSharedPoolPriceProvider', verifyList[i][1], constructorParams);
+    }
+  }
 }

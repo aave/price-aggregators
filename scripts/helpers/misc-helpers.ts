@@ -47,22 +47,21 @@ export const withSaveAndVerify = async <ContractType extends Contract>(
   await waitForTx(instance.deployTransaction);
   await registerContractInJsonDb(id, instance);
   if (verify) {
-    await verifyContract(id, instance, args);
+    await verifyContract(id, instance.address, args);
   }
   return instance;
 };
 
 export const verifyContract = async (
   id: string,
-  instance: Contract,
-  args: (string | string[] | string[][])[]
+  address: tEthereumAddress,
+  args: (boolean | boolean[] | string | string[] | string[][])[]
 ) => {
   if (usingTenderly()) {
-    await verifyAtTenderly(id, instance);
-    return instance;
+    await verifyAtTenderly(id, address);
+    return;
   }
-  await verifyEtherscanContract(instance.address, args);
-  return instance;
+  await verifyEtherscanContract(address, args);
 };
 
 export const evmSnapshot = async () => await HRE.ethers.provider.send('evm_snapshot', []);

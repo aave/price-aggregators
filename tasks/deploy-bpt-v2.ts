@@ -23,6 +23,8 @@ task('deploy-bpt-v2-aggregators', 'Deploy price aggregators')
       signer = await getDefenderRelaySigner();
     }
 
+    console.log('Deployer', await signer.getAddress());
+    console.log('Balance', formatEther(await signer.getBalance()));
     // Sets the price provider of DPI token at Aave Oracle for debug purposes
     if (dpiOracle) {
       const aaveOracle = await IAaveOracle__factory.connect(AAVE_ORACLE, await getFirstSigner());
@@ -34,10 +36,17 @@ task('deploy-bpt-v2-aggregators', 'Deploy price aggregators')
       console.log('Added DPI price provider to the Aave Oracle');
     }
 
-    // Filter pool names you dont want to deploy due deployment re-runs
-    const balancerDeployList: string[] = balancerV2Markets.map((x) => x.name);
+    // Filter pool names you don't want to deploy due deployment re-runs
+    const filterNames: string[] = [];
+
+    const balancerDeployList: string[] = balancerV2Markets
+      .map((x) => x.name)
+      .filter((x) => !filterNames.includes(x));
 
     const aggregators: { [key: string]: string } = await setBptAggs(balancerDeployList, signer, 2);
+
+    console.log('Gas Price:', (await hre.ethers.provider.getGasPrice()).toString());
+    console.log('Balance after deployment', formatEther(await signer.getBalance()));
 
     // List the prices of the assets for debug purposes
     if (debugPrices) {

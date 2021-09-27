@@ -34,7 +34,7 @@ export async function setUniAggs(deployList: string[], signer: Signer) {
     );
     aggregatorAddresses.push(uniAggregator.address);
 
-    await verifyContract('UniswapV2PriceProvider', uniAggregator, [
+    await verifyContract('UniswapV2PriceProvider', uniAggregator.address, [
       uniswapPools[i].address,
       uniswapPools[i].peg.map((x) => x.toString()),
       uniswapPools[i].decimals.map((x) => x.toString()),
