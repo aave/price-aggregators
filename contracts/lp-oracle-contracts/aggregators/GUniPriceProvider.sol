@@ -134,7 +134,7 @@ contract GUniPriceProvider is IExtendedAggregator {
         return IExtendedAggregator.TokenType.Complex;
     }
 
-    function decimals() external pure override returns (uint8) {
+    function decimals() external pure returns (uint8) {
         return 18;
     }
 
