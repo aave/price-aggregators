@@ -4,10 +4,10 @@ import '@nomiclabs/hardhat-waffle';
 import '@nomiclabs/hardhat-etherscan';
 import '@nomiclabs/hardhat-ethers';
 import 'hardhat-typechain';
+import '@tenderly/hardhat-tenderly';
 
 // Import HRE task
 import './tasks/set-hre';
-import './tasks/deploy';
 
 const { ffmnemonic, alchemyProjectId, etherscanKey, infuraProjectId } = require('./secrets.json');
 
@@ -32,8 +32,13 @@ export default {
       },
     },
   },
+  tenderly: {
+    project: process.env.TENDERLY_PROJECT || '',
+    username: process.env.TENDERLY_USERNAME || '',
+    forkNetwork: '1', //Network id of the network we want to fork
+  },
   networks: {
-    mainnet: {
+    main: {
       url: `https://eth-mainnet.alchemyapi.io/v2/${alchemyProjectId}`,
       gasPrice: 71000000000,
       accounts: { mnemonic: ffmnemonic },
@@ -49,11 +54,12 @@ export default {
     hardhat: {
       forking: {
         url: `https://eth-mainnet.alchemyapi.io/v2/${alchemyProjectId}`,
-        blockNumber: 11689738,
       },
+      ...(ffmnemonic && { accounts: { mnemonic: ffmnemonic } }),
     },
     tenderly: {
-      url: `https://rpc.tenderly.co/fork/f551ad0a-1daf-47c0-b091-73beef4a43bb`,
+      url: `https://rpc.tenderly.co/fork/`,
+      chainId: 3030,
     },
     kovan: {
       url: `https://eth-kovan.alchemyapi.io/v2/${alchemyProjectId}`,
