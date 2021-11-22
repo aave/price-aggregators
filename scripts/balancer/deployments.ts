@@ -3,7 +3,7 @@ import { BigNumberish, Signer } from 'ethers';
 import { exit } from 'process';
 import { BalancerSharedPoolPriceProvider__factory } from '../../typechain';
 import { balancerMarkets, AAVE_ORACLE, MAX_PRICE_DEVIATION } from '../config';
-import { verifyContract } from '../misc-helpers';
+import { verifyContract } from '../helpers/misc-helpers';
 
 export async function setBptAggs(deployList: string[], signer: Signer) {
   const balancerPools = balancerMarkets.filter(({ name }) => {
@@ -54,20 +54,16 @@ export async function setBptAggs(deployList: string[], signer: Signer) {
     );
     aggregatorAddresses.push(bptAggregator.address);
 
-    await verifyContract(
-      bptAggregator.address,
-      'contracts/lp-oracle-contracts/aggregators/BalancerSharedPoolPriceProvider.sol:BalancerSharedPoolPriceProvider',
-      [
-        balancerPools[i].address,
-        balancerPools[i].peg,
-        balancerPools[i].decimals,
-        AAVE_ORACLE,
-        MAX_PRICE_DEVIATION,
-        k,
-        '100000000',
-        matrix,
-      ]
-    );
+    await verifyContract('BalancerSharedPoolPriceProvider', bptAggregator, [
+      balancerPools[i].address,
+      balancerPools[i].peg.map((bool) => (bool === true ? 'true' : 'false')),
+      balancerPools[i].decimals.map((decimal) => decimal.toString()),
+      AAVE_ORACLE,
+      MAX_PRICE_DEVIATION,
+      k,
+      '100000000',
+      matrix.toString(),
+    ]);
   }
 
   console.log('- Balancer Addresses');

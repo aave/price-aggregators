@@ -1,6 +1,6 @@
 {
-  "name": "price-aggregators",
-  "version": "1.0.0",
+  "name": "@aave/price-aggregators",
+  "version": "1.0.1",
   "description": "Deployment scripts for Aave price aggregators",
   "dependencies": {
     "@openzeppelin/contracts": "^3.3.0",
@@ -11,10 +11,13 @@
     "typechain": "^4.0.1"
   },
   "devDependencies": {
+    "@nomiclabs/buidler-etherscan": "^2.1.0",
     "@nomiclabs/hardhat-ethers": "^2.0.2",
     "@nomiclabs/hardhat-etherscan": "^2.0.1",
     "@nomiclabs/hardhat-waffle": "^2.0.0",
+    "@tenderly/hardhat-tenderly": "^1.1.0-beta.4",
     "@types/chai": "^4.2.14",
+    "@types/lowdb": "^1.0.10",
     "@types/mocha": "^8.2.0",
     "@types/node": "^14.14.21",
     "chai": "^4.2.0",
@@ -22,6 +25,7 @@
     "ethers": "^5.0.23",
     "hardhat": "^2.0.6",
     "husky": "^5.1.3",
+    "lowdb": "^1.0.0",
     "prettier": "^2.2.1",
     "prettier-plugin-solidity": "^1.0.0-beta.6",
     "pretty-quick": "^3.1.0",
@@ -34,8 +38,11 @@
     "deploy-mainnet": "npm run compile && npx hardhat --network mainnet deploy-price-aggregators",
     "deploy-tenderly": "npm run compile && npx hardhat --network tenderly deploy-price-aggregators",
     "deploy-kovan": "npm run compile && npx hardhat --network kovan deploy-price-aggregators",
+    "deploy-curve:tenderly": "npm run compile && npx hardhat --network tenderly deploy-curve-price-provider",
+    "deploy-curve-gauge:tenderly": "npm run compile && npx hardhat --network tenderly deploy-curve-gauge-price-provider",
     "prettier:check": "npx prettier -c 'contracts/**/*.sol' 'scripts/**/*.ts'",
-    "prettier:write": "prettier --write 'contracts/**/*.sol' 'scripts/**/*.ts'"
+    "prettier:write": "prettier --write 'contracts/**/*.sol' 'scripts/**/*.ts'",
+    "test:curve": "npm run compile && hardhat test ./tests/curve/*.spec.ts"
   },
   "husky": {
     "hooks": {
